@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Price Tracker</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <h1>Cryptocurrency Price Tracker</h1>
+
+    <h2>Bitcoin</h2>
+    <p>Current Price: <span id="current-bitcoin-price">Loading...</span></p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="bitcoin-price-history">
+            <!-- Historical prices will be populated here -->
+            {% for timestamp, price in price_history %}
+                <tr>
+                    <td>{{ timestamp }}</td>
+                    <td>{{ price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Ethereum</h2>
+    <p>Current Price: <span id="current-ethereum-price">Loading...</span></p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="ethereum-price-history">
+            <!-- Historical prices will be populated here -->
+            {% for timestamp, price in ethereum_price_history %}
+                <tr>
+                    <td>{{ timestamp }}</td>
+                    <td>{{ price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function updatePrices() {
+            // Update Bitcoin price
+            $.getJSON('/api/bitcoin', function(data) {
+                $('#current-bitcoin-price').text(data.current_price);
+                if (data.current_price) {
+                    $('#bitcoin-price-history').prepend('<tr><td>' + new Date().toLocaleString() + '</td><td>' + data.current_price + '</td></tr>');
+                    // Limit to 5 rows
+                    if ($('#bitcoin-price-history tr').length > 5) {
+                        $('#bitcoin-price-history tr:last').remove();
+                    }
+                }
+            });
+
+            // Update Ethereum price
+            $.getJSON('/api/ethereum', function(data) {
+                $('#current-ethereum-price').text(data.current_price);
+                if (data.current_price) {
+                    $('#ethereum-price-history').prepend('<tr><td>' + new Date().toLocaleString() + '</td><td>' + data.current_price + '</td></tr>');
+                    // Limit to 5 rows
+                    if ($('#ethereum-price-history tr').length > 5) {
+                        $('#ethereum-price-history tr:last').remove();
+                    }
+                }
+            });
+        }
+
+        // Fetch prices every 5 seconds
+        setInterval(updatePrices, 5000);
+    </script>
+</body>
+</html>
